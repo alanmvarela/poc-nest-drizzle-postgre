@@ -39,8 +39,8 @@ lerna-debug.log*
 *.db
 *.db-journal
 
-# Prisma migrations
-prisma/migrations
+# Drizzle migrations
+src/db/migrations
 
 # .env file
 .env

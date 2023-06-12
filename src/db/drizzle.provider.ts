@@ -8,8 +8,15 @@ export class DrizzleProvider implements OnModuleInit {
   db: BetterSQLite3Database;
 
   async onModuleInit() {
-    const sqlite = new Database('sqlite.db');
-    this.db = drizzle(sqlite);
+    const sqlitedb = require('better-sqlite3');
+
+    const newDb = new sqlitedb('db.sqlite' , sqlitedb.OPEN_READWRITE, (err) => {
+      if (err) {
+          console.error(err.message);
+      }
+      verbose: console.log}
+    );
+    this.db = drizzle(newDb);
 
     migrate(this.db, {migrationsFolder: './src/db/migrations'});
   }

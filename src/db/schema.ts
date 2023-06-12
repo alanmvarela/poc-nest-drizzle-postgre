@@ -22,7 +22,7 @@ export type IssueCard = InferModel<typeof issueCard>
 export const taskCard = sqliteTable('taskCard', {
     id: integer('id').primaryKey(),
     title: text('name'),
-    description: text('category'),
+    category: text('category'),
   }
 );
 
