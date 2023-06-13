@@ -10,7 +10,7 @@ export class DrizzleProvider implements OnModuleInit {
   async onModuleInit() {
     const sqlitedb = require('better-sqlite3');
 
-    const newDb = new sqlitedb('db.sqlite' , sqlitedb.OPEN_READWRITE, (err) => {
+    const newDb = new sqlitedb('sqlite.db' , sqlitedb.OPEN_READWRITE, (err) => {
       if (err) {
           console.error(err.message);
       }

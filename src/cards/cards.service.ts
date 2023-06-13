@@ -39,7 +39,7 @@ export class CardsService {
      * @param type - The type of card.
      */
     async getCards(type: CardType) {
-        return this.drizzleProvider.db.select().from(this.formatType(type));
+        return this.drizzleProvider.db.select().from(this.formatType(type)).all();
     }
 
     /**
@@ -50,7 +50,7 @@ export class CardsService {
      */
     async getCard(type: CardType, id: number) {
         const schema = this.formatType(type);
-        const card = await this.drizzleProvider.db.select().from(schema).where(eq(schema.id, id));
+        const card = await this.drizzleProvider.db.select().from(schema).where(eq(schema.id, id)).all();
         if (!card){
             throw new NotFoundException(`Card with id ${id} not found`);
         };
@@ -65,7 +65,7 @@ export class CardsService {
      */
     async deleteCard(type: CardType, id: number) {
         const schema = this.formatType(type);
-        await this.drizzleProvider.db.delete(schema).where(eq(schema.id, id));
+        await this.drizzleProvider.db.delete(schema).where(eq(schema.id, id)).run();
 
 
     }
@@ -89,12 +89,13 @@ export class CardsService {
      */
     async createIssueCard(card: CreateCardDto) {
         this.validateIssueCard(card);
-        const newCard = await this.drizzleProvider.db.insert(issueCard).values(
+        const newCard = this.drizzleProvider.db.insert(issueCard).values(
             {
                 title: card.title,
                 description: card.description,
             }).
-            returning();
+            returning().
+            all();
         return newCard;
     }
 
@@ -122,7 +123,8 @@ export class CardsService {
                 title: card.title,
                 category: card.category,
             }).
-            returning();
+            returning().
+            all();
         return newCard;
     }
 
@@ -152,7 +154,8 @@ export class CardsService {
                 title: card.title,
                 description: card.description,
             }).
-            returning();
+            returning().
+            all();
         return newCard;
     }
 
