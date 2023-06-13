@@ -1,12 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCardDto } from './dtos/create-card.dto';
 import { CardType } from './cards.enum';
-import { PrismaService } from 'prisma/prisma.service';
-import { 
-    BugCard as BugCardModel,
-    IssueCard as IssueCardModel, 
-    TaskCard as TaskCardModel,
-    Prisma } from '@prisma/client';
+import { DrizzleProvider } from 'src/db/drizzle.provider';
+import { bugCard, issueCard, taskCard } from 'src/db/schema';
+import { eq } from 'drizzle-orm';
 
 
 
@@ -17,16 +14,15 @@ import {
 export class CardsService {
 
     constructor(
-        private readonly prismaService: PrismaService,
+        private readonly drizzleProvider: DrizzleProvider,
     ) {}
 
     /**
      * This method creates a card based on the type of card.
      * 
-     * @param {CreateCardDto} card - The card to be created.
-     * @returns {Promise<IssueCardModel | TaskCardModel | BugCardModel >} The created card.
+     * @param card - The card to be created.
      */
-    async createCard(card: CreateCardDto): Promise<IssueCardModel | TaskCardModel | BugCardModel> {
+    async createCard(card: CreateCardDto) {
         switch (card.type) {
             case CardType.ISSUE:
                 return this.createIssueCard(card);
@@ -40,42 +36,38 @@ export class CardsService {
     /**
      * This method returns all cards of a given type.
      * 
-     * @param {CardType} type - The type of card.
-     * @returns {Promise<IssueCardModel[] | TaskCardModel[] | BugCardModel[]>} The cards of the given type.
+     * @param type - The type of card.
      */
-    async getCards(type: CardType): Promise<IssueCardModel[] | TaskCardModel[] | BugCardModel[]> {
-        return this.prismaService[this.formatType(type)].findMany();
+    async getCards(type: CardType) {
+        return this.drizzleProvider.db.select().from(this.formatType(type)).all();
     }
 
     /**
      * This method returns a card of a given type and id.
      * 
-     * @param {CardType} type - The type of card.
-     * @param {number} id - The id of the card.
-     * @returns {Promise<IssueCardModel | TaskCardModel | BugCardModel>} The card of the given type and id.
+     * @param type - The type of card.
+     * @param id - The id of the card.
      */
-    async getCard(type: CardType, id: number): Promise<IssueCardModel | TaskCardModel | BugCardModel> {
-        const card = this.prismaService[this.formatType(type)].findUnique({ where: { id:Number(id) } });
+    async getCard(type: CardType, id: number) {
+        const schema = this.formatType(type);
+        const card = await this.drizzleProvider.db.select().from(schema).where(eq(schema.id, id)).all();
         if (!card){
             throw new NotFoundException(`Card with id ${id} not found`);
         };
-        return card;
+        return card[0];
     }
 
     /**
      * This method deletes a card of a given type and id.
      * 
-     * @param {CardType} type - The type of card.
-     * @param {number} id - The id of the card.
+     * @param type - The type of card.
+     * @param id - The id of the card.
      */
     async deleteCard(type: CardType, id: number) {
-        await this.prismaService[this.formatType(type)].delete(
-            { 
-                where: { id: Number(id) } 
-            }
-        ).catch(() => {
-            throw new NotFoundException(`Card with id ${id} not found`);
-        });
+        const schema = this.formatType(type);
+        await this.drizzleProvider.db.delete(schema).where(eq(schema.id, id)).run();
+
+
     }
 
     /**
@@ -94,17 +86,17 @@ export class CardsService {
      * This method creates an issue card.
      * 
      * @param card - The card to be created.
-     * @returns {Promise<IssueCardModel>} The created card.
      */
-    async createIssueCard(card: CreateCardDto): Promise<IssueCardModel> {
+    async createIssueCard(card: CreateCardDto) {
         this.validateIssueCard(card);
-        const issueCard = await this.prismaService.issueCard.create({
-            data: {
+        const newCard = this.drizzleProvider.db.insert(issueCard).values(
+            {
                 title: card.title,
                 description: card.description,
-            },
-        });
-        return issueCard;
+            }).
+            returning().
+            all();
+        return newCard;
     }
 
     /**
@@ -123,17 +115,17 @@ export class CardsService {
      * This method creates a task card.
      * 
      * @param card - The card to be created.
-     * @returns {Promise<TaskCardModel>} The created card.
      */
-    async createTaskCard(card: CreateCardDto): Promise<TaskCardModel> {
+    async createTaskCard(card: CreateCardDto) {
         this.validateTaskCard(card)
-        const taskCard = await this.prismaService.taskCard.create({
-            data: {
+        const newCard = await this.drizzleProvider.db.insert(taskCard).values(
+            {
                 title: card.title,
                 category: card.category,
-            },
-        });
-        return taskCard;
+            }).
+            returning().
+            all();
+        return newCard;
     }
 
     /**
@@ -152,28 +144,34 @@ export class CardsService {
      * This method creates a bug card.
      * 
      * @param card - The card to be created.
-     * @returns {Promise<BugCardModel>} The created card.
      * @todo Generate a random title function.
      */
-    async createBugCard(card: CreateCardDto): Promise<BugCardModel> {
+    async createBugCard(card: CreateCardDto) {
         this.validateBugCard(card);
         card.title = 'Bug'+'-'+'RandomWord'+'-'+ Math.floor(Math.random() * 1000);
-        const bugCard = await this.prismaService.bugCard.create({
-            data: {
+        const newCard = await this.drizzleProvider.db.insert(bugCard).values(
+            {
                 title: card.title,
                 description: card.description,
-            },
-        });
-        return bugCard;
+            }).
+            returning().
+            all();
+        return newCard;
     }
 
     /**
-     * This method returns the Prisma model name based on the type.
+     * This method returns the Drizzle schema model name based on the type.
      * 
-     * @param {CardType} type - The type of card.
-     * @returns {string} The Prisma model name.
+     * @param type - The type of card.
      */
     private formatType(type: CardType) {
-        return type.toLowerCase() + 'Card';
+        switch (type) {
+            case CardType.ISSUE:
+                return issueCard;
+            case CardType.TASK:
+                return taskCard;
+            case CardType.BUG:
+                return bugCard;
+        };
     }
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Body, Param, Patch } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body} from '@nestjs/common';
 import { CreateCardDto } from './dtos/create-card.dto';
 import { CardsService } from './cards.service';
 import { CardType } from './cards.enum';
