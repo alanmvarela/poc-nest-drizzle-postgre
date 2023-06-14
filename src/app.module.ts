@@ -1,14 +1,19 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 import { CardsModule } from './cards/cards.module';
-import { DrizzleProvider } from './db/drizzle.provider';
+import { ConfigModule } from '@nestjs/config';
+import configs from './configs';
 
 @Module({
   imports: [
     CardsModule,
+    ConfigModule.forRoot({
+      load: configs,
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
   ],
   providers: [
-    DrizzleProvider,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
