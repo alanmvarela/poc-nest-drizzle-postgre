@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCardDto } from './dtos/create-card.dto';
 import { CardType } from './cards.enum';
-import { DrizzleProvider } from 'src/db/drizzle.provider';
-import { bugCard, issueCard, taskCard } from 'src/db/schema';
+import { DrizzleProvider } from './../db/drizzle.provider';
+import { bugCard, issueCard, taskCard } from './../db/schema';
 import { eq } from 'drizzle-orm';
 
 
@@ -50,11 +50,11 @@ export class CardsService {
      */
     async getCard(type: CardType, id: number) {
         const schema = this.formatType(type);
-        const card = await this.drizzleProvider.db.select().from(schema).where(eq(schema.id, id)).all();
-        if (!card){
+        const card = await this.drizzleProvider.db.select().from(schema).where(eq(schema.id, id)).get();
+        if (card===undefined){
             throw new NotFoundException(`Card with id ${id} not found`);
         };
-        return card[0];
+        return card;
     }
 
     /**
@@ -95,7 +95,7 @@ export class CardsService {
                 description: card.description,
             }).
             returning().
-            all();
+            get();
         return newCard;
     }
 
@@ -124,7 +124,7 @@ export class CardsService {
                 category: card.category,
             }).
             returning().
-            all();
+            get();
         return newCard;
     }
 
@@ -155,7 +155,7 @@ export class CardsService {
                 description: card.description,
             }).
             returning().
-            all();
+            get();
         return newCard;
     }
 

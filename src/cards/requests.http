@@ -39,7 +39,7 @@ GET http://localhost:3000/trello-manager/task
 
 
 ### Get a single IssueCard
-GET http://localhost:3000/trello-manager/issue/4
+GET http://localhost:3000/trello-manager/issue/2
 
 
 ### Get a single BugCard
