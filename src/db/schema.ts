@@ -1,8 +1,8 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { serial, text, pgTable } from "drizzle-orm/pg-core";
 import { InferModel } from 'drizzle-orm'; 
 
-export const bugCard = sqliteTable('bugCard', {
-    id: integer('id').primaryKey(),
+export const bugCard = pgTable('bugCard', {
+    id: serial('id'),
     title: text('name'),
     description: text('description'),
   }
@@ -10,8 +10,8 @@ export const bugCard = sqliteTable('bugCard', {
 
 export type BugCard = InferModel<typeof bugCard> // return type when queried
  
-export const issueCard = sqliteTable('issueCard', {
-    id: integer('id').primaryKey(),
+export const issueCard = pgTable('issueCard', {
+    id: serial('id'),
     title: text('name'),
     description: text('description'),
   }
@@ -19,8 +19,8 @@ export const issueCard = sqliteTable('issueCard', {
 
 export type IssueCard = InferModel<typeof issueCard> 
 
-export const taskCard = sqliteTable('taskCard', {
-    id: integer('id').primaryKey(),
+export const taskCard = pgTable('taskCard', {
+    id: serial('id'),
     title: text('name'),
     category: text('category'),
   }
