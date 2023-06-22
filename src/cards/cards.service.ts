@@ -54,7 +54,7 @@ export class CardsService {
         if (card===undefined){
             throw new NotFoundException(`Card with id ${id} not found`);
         };
-        return card;
+        return card[0];
     }
 
     /**
@@ -66,8 +66,6 @@ export class CardsService {
     async deleteCard(type: CardType, id: number) {
         const schema = this.formatType(type);
         await this.drizzleProvider.db.delete(schema).where(eq(schema.id, id));
-
-
     }
 
     /**
@@ -89,13 +87,13 @@ export class CardsService {
      */
     async createIssueCard(card: CreateCardDto) {
         this.validateIssueCard(card);
-        const newCard = this.drizzleProvider.db.insert(issueCard).values(
+        const newCard = await this.drizzleProvider.db.insert(issueCard).values(
             {
                 title: card.title,
                 description: card.description,
             }).
             returning();
-        return newCard;
+        return newCard[0];
     }
 
     /**
@@ -123,7 +121,7 @@ export class CardsService {
                 category: card.category,
             }).
             returning();
-        return newCard;
+        return newCard[0];
     }
 
     /**
@@ -153,7 +151,7 @@ export class CardsService {
                 description: card.description,
             }).
             returning();
-        return newCard;
+        return newCard[0];
     }
 
     /**
