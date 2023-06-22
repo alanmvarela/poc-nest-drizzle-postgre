@@ -1,25 +1,32 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { drizzle, BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { NodePgDatabase, drizzle } from 'drizzle-orm/node-postgres';
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { ConfigService } from '@nestjs/config';
+import * as schema from './schema';
+import { Pool } from 'pg';
+
+
 
 @Injectable()
 export class DrizzleProvider implements OnModuleInit {
-  db: BetterSQLite3Database;
-
+  db: NodePgDatabase<typeof schema>;
+  
   constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit() {
-    const sqlitedb = require('better-sqlite3');
-    const sqlite_db_name = this.configService.get<string>('app.env') + '.db';
+    const database = this.configService.get<string>('db.database');
+    const user = this.configService.get<string>('db.user');
+    const password = this.configService.get<string>('db.password');
+    const port = this.configService.get<string>('db.port');
+    const host = this.configService.get<string>('db.host');
 
-    const newDb = new sqlitedb(sqlite_db_name , sqlitedb.OPEN_READWRITE, (err) => {
-      if (err) {
-          console.error(err.message);
-      }
+    const pool = new Pool({
+      connectionString: `postgres://${user}:${password}@${host}:${port}/${database}`,
     });
-    this.db = drizzle(newDb);
-
+    this.db = drizzle(pool, { schema });
     migrate(this.db, {migrationsFolder: './src/db/migrations'});
+
+    this.db = drizzle(pool, { schema });
+    await migrate(this.db, { migrationsFolder: './src/db/migrations' });
   }
 }
