@@ -25,8 +25,5 @@ export class DrizzleProvider implements OnModuleInit {
     });
     this.db = drizzle(pool, { schema });
     migrate(this.db, {migrationsFolder: './src/db/migrations'});
-
-    this.db = drizzle(pool, { schema });
-    await migrate(this.db, { migrationsFolder: './src/db/migrations' });
   }
 }

@@ -1,22 +1,4 @@
-import { IsString, IsOptional, IsEnum } from "class-validator";
-import { CardType } from "../cards.enum";
-import { CardCategory } from "../cards.enum";
+import { createZodDto } from 'nestjs-zod'
+import { CreateCardSchema } from '../schemas/card.schema'
 
-export class CreateCardDto {
-
-    @IsString()
-    type: CardType;
-
-    @IsString()
-    @IsOptional()
-    title?: string;
-
-    @IsString()
-    @IsOptional()
-    description?: string;
-
-    @IsString()
-    @IsOptional()
-    @IsEnum(CardCategory)
-    category?: CardCategory;
-}
+export class CreateCardDto extends createZodDto(CreateCardSchema) {}

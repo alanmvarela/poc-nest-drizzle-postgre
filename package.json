@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "npm run db:startdev && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -17,9 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --runInBand --config ./test/jest-e2e.json --verbose --passWithNoTests --detectOpenHandles",
+    "test:e2e": "npm run db:startdev && jest --runInBand --config ./test/jest-e2e.json --verbose --passWithNoTests --detectOpenHandles && npm run db:stopdev",
     "db:migrate": "drizzle-kit generate:pg",
-    "db:startdev": "docker-compose -f ./local-dev/compose.yml up -d"
+    "db:startdev": "docker-compose -f ./local-dev/compose.yml up -d",
+    "db:stopdev": "docker-compose -f ./local-dev/compose.yml down"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -30,7 +31,8 @@
     "class-validator": "^0.14.0",
     "drizzle-orm": "^0.26.5",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -48,6 +50,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "29.5.0",
+    "nestjs-zod": "^2.3.3",
     "pg": "^8.11.0",
     "prettier": "^2.3.2",
     "source-map-support": "^0.5.20",
