@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "npm run db:startdev && nest start --watch",
+    "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -17,10 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "npm run db:startdev && jest --runInBand --config ./test/jest-e2e.json --verbose --passWithNoTests --detectOpenHandles && npm run db:stopdev",
+    "test:e2e": "jest --runInBand --config ./test/jest-e2e.json --verbose --passWithNoTests --detectOpenHandles",
     "db:migrate": "drizzle-kit generate:pg",
-    "db:startdev": "docker-compose -f ./local-dev/compose.yml up -d",
-    "db:stopdev": "docker-compose -f ./local-dev/compose.yml down"
+    "db:start": "docker-compose -f ./local-dev/compose.yml up -d",
+    "db:stop": "docker-compose -f ./local-dev/compose.yml down"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",

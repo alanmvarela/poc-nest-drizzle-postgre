@@ -1,6 +1,5 @@
 import { Controller, Post, Get, Delete, Body, Param} from '@nestjs/common';
 import { CardsService } from './cards.service';
-import { CardType } from './cards.enum';
 import { CreateCardDto } from './dtos/create-card.dto';
 import { CardParamDto } from './dtos/card-param.dto';
 import { CardParamTypeDto } from './dtos/card-param-type.dto';
@@ -18,18 +17,17 @@ export class CardsController {
 
     @Get("/:type")
     async getCards(@Param() typeParam: CardParamTypeDto) {
-        return this.cardsService.getCards(typeParam.type as CardType);
+        return this.cardsService.getCards(typeParam.type);
     }
 
     @Get("/:type/:id")
     async getCard(@Param() param: CardParamDto) {
-        console.log(param);
         return this.cardsService.getCard(param.type, param.id);
     }
 
     @Delete("/:type/:id")
     async deleteCard(@Param() param: CardParamDto) {
-        return this.cardsService.deleteCard(param.type as CardType, param.id);
+        return this.cardsService.deleteCard(param.type, param.id);
     }
 
 }
