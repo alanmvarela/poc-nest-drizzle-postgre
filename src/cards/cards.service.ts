@@ -1,10 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCardDto } from './dtos/create-card.dto';
 import { CardType } from './cards.enum';
 import { DrizzleProvider } from './../db/drizzle.provider';
 import { bugCard, issueCard, taskCard } from './../db/schema';
 import { eq } from 'drizzle-orm';
-
+import { CreateCardDto } from './dtos/create-card.dto';
 
 
 /**

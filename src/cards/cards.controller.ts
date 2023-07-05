@@ -1,9 +1,9 @@
-import { Controller, Post, Get, Delete, Body} from '@nestjs/common';
-import { CreateCardDto } from './dtos/create-card.dto';
+import { Controller, Post, Get, Delete, Body, Param} from '@nestjs/common';
 import { CardsService } from './cards.service';
-import { CardType } from './cards.enum';
-import { ValidateCardType } from './validators/card-type.validator';
-import { ValidateId } from './validators/card-id.validator';
+import { CreateCardDto } from './dtos/create-card.dto';
+import { CardParamDto } from './dtos/card-param.dto';
+import { CardParamTypeDto } from './dtos/card-param-type.dto';
+
 
 @Controller('trello-manager')
 export class CardsController {
@@ -16,18 +16,18 @@ export class CardsController {
     }
 
     @Get("/:type")
-    async getCards(@ValidateCardType() type: CardType) {
-        return this.cardsService.getCards(type);
+    async getCards(@Param() typeParam: CardParamTypeDto) {
+        return this.cardsService.getCards(typeParam.type);
     }
 
     @Get("/:type/:id")
-    async getCard(@ValidateCardType() type: CardType, @ValidateId() id: number) {
-        return this.cardsService.getCard(type, id);
+    async getCard(@Param() param: CardParamDto) {
+        return this.cardsService.getCard(param.type, param.id);
     }
 
     @Delete("/:type/:id")
-    async deleteCard(@ValidateCardType() type: CardType, @ValidateId() id: number) {
-        return this.cardsService.deleteCard(type, id);
+    async deleteCard(@Param() param: CardParamDto) {
+        return this.cardsService.deleteCard(param.type, param.id);
     }
 
 }

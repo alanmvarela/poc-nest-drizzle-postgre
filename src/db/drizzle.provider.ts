@@ -4,7 +4,10 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { ConfigService } from '@nestjs/config';
 import * as schema from './schema';
 import { Pool } from 'pg';
+import * as path from 'path';
 
+
+const migrationsFolder = path.join(__dirname, 'migrations');
 
 
 @Injectable()
@@ -24,9 +27,6 @@ export class DrizzleProvider implements OnModuleInit {
       connectionString: `postgres://${user}:${password}@${host}:${port}/${database}`,
     });
     this.db = drizzle(pool, { schema });
-    migrate(this.db, {migrationsFolder: './src/db/migrations'});
-
-    this.db = drizzle(pool, { schema });
-    await migrate(this.db, { migrationsFolder: './src/db/migrations' });
+    await migrate(this.db, { migrationsFolder });
   }
 }
